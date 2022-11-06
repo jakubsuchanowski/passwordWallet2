@@ -39,9 +39,12 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
     }
+
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody User user){
         Optional<User> userFromDb = userRepository.findByLogin(user.getLogin());
+
         if(userFromDb.isEmpty() || wrongPassword(userFromDb, user)){
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

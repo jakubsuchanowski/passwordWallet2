@@ -20,7 +20,7 @@ import java.util.Optional;
 @RestController
 public class PasswordService {
 
-    @Autowired
+   @Autowired
     PasswordRepository passwordRepository;
 
     @Autowired
@@ -48,13 +48,30 @@ public static AESenc aeSenc;
         if (userFromDb.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Key key = aeSenc.generateKey(webPassword.getUser().getPasswordHash());
+        Key key = aeSenc.generateKey(userFromDb.get().getPasswordHash());
 
             Password password = new Password(null, aeSenc.encrypt(webPassword.getPassword(), key), userFromDb.get(), webPassword.getWebAddress(), webPassword.getDescription(), webPassword.getLogin());
             Password savedPassword = passwordRepository.save(password);
             return ResponseEntity.ok(savedPassword);
 
         }
-    }
+//    public void addPassword(@RequestHeader("login") String login, @RequestBody Password webPassword) throws Exception {
+//        Optional<User> userFromDb = userRepository.findByLogin(login);
+//        if (userFromDb.isEmpty()) {
+//        }
+//             ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+
+
+//    Key key = aeSenc.generateKey(password.getUser().getPasswordHash());
+//        try {
+//
+//            Password password = new Password(null, aeSenc.encrypt(webPassword.getPassword(), key), userFromDb.get(), webPassword.getWebAddress(), webPassword.getDescription(), webPassword.getLogin());
+//            passwordRepository.save(password);
+//        }
+//        catch (Exception e){
+//
+//        }
+  }
 
 
