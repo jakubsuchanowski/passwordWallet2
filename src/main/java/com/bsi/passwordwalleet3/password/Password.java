@@ -1,5 +1,6 @@
-package com.bsi.passwordwalleet3.entity;
+package com.bsi.passwordwalleet3.password;
 
+import com.bsi.passwordwalleet3.user.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +11,6 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
-@ToString
 @NoArgsConstructor
 public class Password{
 

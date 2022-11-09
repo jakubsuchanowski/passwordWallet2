@@ -1,4 +1,4 @@
-package com.bsi.passwordwalleet3.entity;
+package com.bsi.passwordwalleet3.user;
 
 import lombok.*;
 
@@ -11,7 +11,6 @@ import javax.persistence.*;
     @AllArgsConstructor
     @NoArgsConstructor
     @RequiredArgsConstructor
-    @ToString
     public class User {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

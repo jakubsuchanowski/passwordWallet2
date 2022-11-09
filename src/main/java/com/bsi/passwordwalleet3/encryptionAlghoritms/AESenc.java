@@ -11,12 +11,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-import static com.bsi.passwordwalleet3.encryptionAlghoritms.MD5.calculateMD5;
 
 @Component
 @RequiredArgsConstructor
 public class AESenc {
-    public static String ALGO = "AES";
+    private static String ALGO = "AES";
 
     //encrypts string and returns encrypted string
     public static String encrypt(String data, Key key) throws Exception {
@@ -37,6 +36,16 @@ public class AESenc {
 
     public static Key generateKey(String password) throws Exception {
         return new SecretKeySpec(calculateMD5(password), ALGO);
+    }
+
+    public static byte[] calculateMD5(String text) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(text.getBytes());
+            return messageDigest;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

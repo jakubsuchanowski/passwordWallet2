@@ -2,23 +2,23 @@ package com.bsi.passwordwalleet3.encryptionAlghoritms;
 
 
 
-import com.bsi.passwordwalleet3.entity.User;
-import com.bsi.passwordwalleet3.providers.SaltProvider;
+import com.bsi.passwordwalleet3.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class SHA512 {
-    public SaltProvider saltProvider;
 
-    public User encodeSha512(User userDb, String salt){
+
+    public User encryptSha512(User userDb, String salt){
         if(salt==null){
-            salt = saltProvider.generateSalt();
+            salt = generateSalt();
         }
 
         String password = calculateSHA512(salt + userDb.getPasswordHash());
@@ -55,4 +55,9 @@ public class SHA512 {
             throw new RuntimeException(e);
         }
     }
+    public String generateSalt(){
+        return UUID.randomUUID().toString();
+    }
+
+
 }
