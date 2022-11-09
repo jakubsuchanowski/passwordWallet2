@@ -52,7 +52,8 @@ public class UserService {
 
         Key key = AESenc.generateKey(pepper);
 
-        user.setPasswordHash(aeSenc.encrypt(user.getPasswordHash(),key));
+        String password = user.getPasswordHash();
+        user.setPasswordHash(aeSenc.encrypt(password,key));
 
         userRepo.save(user);
     }

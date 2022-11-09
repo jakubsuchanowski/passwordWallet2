@@ -1,6 +1,7 @@
 package com.bsi.passwordwalleet3;
 
 import com.bsi.passwordwalleet3.password.Password;
+import com.bsi.passwordwalleet3.password.PasswordRepo;
 import com.bsi.passwordwalleet3.user.User;
 import com.bsi.passwordwalleet3.models.CryptResponse;
 import com.bsi.passwordwalleet3.user.UserRepo;
@@ -26,7 +27,12 @@ public class AppController {
     @Autowired
     ObjectMapper objectMapper;
 
-   private final UserRepo userRepo;
+    @Autowired
+    UserRepo userRepo;
+    @Autowired
+    PasswordRepo passwordRepo;
+
+
 
     @GetMapping("/users")
     public ResponseEntity getUser(User user) {

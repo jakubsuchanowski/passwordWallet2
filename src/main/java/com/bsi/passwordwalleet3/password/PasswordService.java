@@ -23,12 +23,13 @@ public class PasswordService {
     @Autowired
     UserRepo userRepo;
 
-    public static AESenc aeSenc;
+    @Autowired
+    AESenc aeSenc;
 
     public void addPassword(String login, Password webPassword) throws Exception {
         Optional<User> userFromDb = userRepo.findByLogin(login);
 
-        Key key = aeSenc.generateKey(webPassword.getPassword());
+        Key key = aeSenc.generateKey(userFromDb.get().getPasswordHash());
 
         Password password = new Password(null, aeSenc.encrypt(webPassword.getPassword(), key), userFromDb.get(), webPassword.getWebAddress(), webPassword.getDescription(), webPassword.getLogin());
         passwordRepo.save(password);
