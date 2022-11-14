@@ -20,15 +20,15 @@ public class PasswordWallet3Application {
         SpringApplication.run(PasswordWallet3Application.class, args);
         String pepper = "qwerty123456";
         String addHaslo="zosia1";
-        String haslo="zosia";
-        String sha = SHA512.calculateSHA512("26d77be7-daea-4a48-90a9-3f05880cfc4a"+haslo);
+        String haslo="zosia7";
+        String sha = SHA512.calculateSHA512("4eb7b62b-4f2f-494f-845e-37d1d7754fc7"+haslo);
         Key key = AESenc.generateKey(pepper);
-        String masterKey = AESenc.encrypt(haslo,key);
-        System.out.println("hasloSHA: "+sha);
+        String masterKey = AESenc.encrypt(sha,key);
+        System.out.println("hasloSHA: "+masterKey);
 
-        String hmac = calculateHMAC(haslo, pepper);
+
+        String hmac = calculateHMAC(sha, pepper);
         System.out.println("hasloHMAC: "+hmac);
-        String userPassword = sha;
         Key key2 = AESenc.generateKey(masterKey);
         String encryptPassword = AESenc.encrypt(addHaslo,key2);
         String decryptPassword = AESenc.decrypt(encryptPassword,key2);
@@ -38,12 +38,4 @@ public class PasswordWallet3Application {
 
 
     }
-    public void passwordHash2(String encryptPassword, String decryptPassword) throws Exception{
-
-
-
-
-    }
-
-
 }

@@ -103,5 +103,17 @@ public class AppController {
 //            return ResponseEntity.ok().build();
 //        }
     }
+
+
+    @PostMapping("/changePassword")
+    public ResponseEntity changeUserPassword(@RequestHeader("login") String login, @RequestParam String newPassword){
+        try {
+                userService.changePassword(login,newPassword);
+        }
+        catch (Exception e){
+
+        }
+        return ResponseEntity.ok().build();
+    }
 }
 
