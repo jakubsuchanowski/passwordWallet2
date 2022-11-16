@@ -3,6 +3,8 @@ package com.bsi.passwordwalleet3.user;
 import com.bsi.passwordwalleet3.encryptionAlghoritms.AESenc;
 import com.bsi.passwordwalleet3.encryptionAlghoritms.HMAC;
 import com.bsi.passwordwalleet3.encryptionAlghoritms.SHA512;
+import com.bsi.passwordwalleet3.exception.ExceptionMessages;
+import com.bsi.passwordwalleet3.exception.UserLoginException;
 import com.bsi.passwordwalleet3.password.Password;
 import com.bsi.passwordwalleet3.password.PasswordService;
 
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Key;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.bsi.passwordwalleet3.encryptionAlghoritms.HMAC.calculateHMAC;
@@ -72,16 +75,30 @@ public class UserService {
 
 
 
-    public void login(@RequestBody User user){
+    public void login(User user) throws Exception {
         Optional<User> userFromDb = userRepo.findByLogin(user.getLogin());
-
-        if(userFromDb.isEmpty() || wrongPassword(userFromDb, user)){
-
+        if(Objects.isNull(userFromDb)){
+            throw new UserLoginException(ExceptionMessages.USER_DOES_NOT_EXIST.getCode());
+        }
+        User probablyUser = sha512.encryptSha512(user, userFromDb.get().getSalt());
+        if(userFromDb.get().getIsPasswordKeptAsHash()){
+            Key key = aeSenc.generateKey(pepper);
+            probablyUser.setPasswordHash(aeSenc.encrypt(probablyUser.getPasswordHash(),key));
+            if(!userFromDb.get().getPasswordHash().equals(probablyUser.getPasswordHash())){
+                throw new UserLoginException(ExceptionMessages.WRONG_PASSWORD.getCode());
+            }
+        }
+        if(!userFromDb.get().getIsPasswordKeptAsHash()){
+            String hmacCodedInComingUserPassword = hmac.calculateHMAC(probablyUser.getPasswordHash(),pepper);
+            if (!userFromDb.get().getPasswordHash().equals(hmacCodedInComingUserPassword)) {
+                throw new UserLoginException(ExceptionMessages.WRONG_PASSWORD.getCode());
+            }
         }
     }
 
     public void changePassword(String login, String newPassword) throws Exception{
         Optional<User> userFromDb = userRepo.findByLogin(login);
+        String oldUserPassword = userFromDb.get().getPasswordHash();
         if(userFromDb.get().getIsPasswordKeptAsHash()){
             String newSalt = sha512.generateSalt();
             String sha = SHA512.calculateSHA512(newSalt + newPassword);
@@ -100,8 +117,11 @@ public class UserService {
             userFromDb.get().setSalt(newSalt);
             userRepo.save(userFromDb.get());
         }
+        passwordService.changeUserPasswords(login,oldUserPassword);
 
     }
+
+
 
     public boolean wrongPassword(Optional<User> userFromDb, User user){
         return !userFromDb.get().getPasswordHash().equals(user.getPasswordHash());

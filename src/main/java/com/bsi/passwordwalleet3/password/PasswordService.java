@@ -43,7 +43,7 @@ public class PasswordService {
     }
 
 
-    public List<Password> showPasswords(@RequestHeader("login") String userLogin) {
+    public List<Password> showPasswords(String userLogin) {
         Optional<User> userFromDb = userRepo.findByLogin(userLogin);
 
         return passwordRepo.findAllByUserId(userFromDb.get().getId());
@@ -65,7 +65,7 @@ public String decryptPassword(Long passwordId, String userPassword) throws Excep
             return decryptedPassword;
         }
 
-        if(!passwordFromDb.get().getUser().getIsPasswordKeptAsHash()){
+        if(passwordFromDb.get().getUser().getIsPasswordKeptAsHash()){
             String sha = SHA512.calculateSHA512(passwordFromDb.get().getUser().getSalt() + userPassword);
             Key key2 =aeSenc.generateKey(pepper);
             String userPasswordWithSha = aeSenc.encrypt(sha,key2);
@@ -77,7 +77,23 @@ public String decryptPassword(Long passwordId, String userPassword) throws Excep
     }
     return "Błąd";
     }
+    public void changeUserPasswords(String login, String oldUserPassword) throws Exception {
+        Optional<User> userFromDb = userRepo.findByLogin(login);
+       List<Password> passwordsList = passwordRepo.findAllByUserId(userFromDb.get().getId());
+        for(int i=0; i<passwordsList.size();i++) {
+            Password password = passwordsList.get(i);
+            System.out.println(password.getPassword());
+            Key key = aeSenc.generateKey(oldUserPassword);
+            String decryptedPassword = aeSenc.decrypt(password.getPassword(),key);
+            Key key2 = aeSenc.generateKey(userFromDb.get().getPasswordHash());
 
-  }
+            String encryptedPassword = aeSenc.encrypt(decryptedPassword,key2);
+
+            password.setPassword(encryptedPassword);
+
+            passwordRepo.save(password);
+            }
+        }
+    }
 
 

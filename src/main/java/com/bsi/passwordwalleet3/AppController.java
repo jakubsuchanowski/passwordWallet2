@@ -1,5 +1,6 @@
 package com.bsi.passwordwalleet3;
 
+import com.bsi.passwordwalleet3.exception.UserLoginException;
 import com.bsi.passwordwalleet3.password.Password;
 import com.bsi.passwordwalleet3.password.PasswordRepo;
 import com.bsi.passwordwalleet3.user.User;
@@ -63,20 +64,20 @@ public class AppController {
             userService.login(user);
 
         } catch (Exception e) {
-            out.println("Bład");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
 
 
     @PostMapping("/addPassword")
-    public ResponseEntity addPassword(@RequestHeader("login") String login, @RequestBody Password password) throws Exception {
+    public ResponseEntity addPassword(@RequestHeader("login") String login, @RequestBody Password password){
 
-//        try {
+        try {
             passwordService.addPassword(login,password);
-//        } catch (Exception e) {
-//            out.println("Bład");
-//        }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -93,25 +94,26 @@ public class AppController {
 
     @PostMapping("/decrypt")
     public ResponseEntity<CryptResponse> decryptPassword(@RequestParam Long passwordId, @RequestParam String userPassword) throws Exception {
-//        try {
+        try {
             String decryptedPassword = passwordService.decryptPassword(passwordId,userPassword);
             CryptResponse response = new CryptResponse(decryptedPassword);
             return ResponseEntity.ok(response);
 
-//        } catch (Exception e) {
-//            out.println("Bład");
-//            return ResponseEntity.ok().build();
-//        }
+        } catch (Exception e) {
+            out.println("Bład");
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 
     @PostMapping("/changePassword")
-    public ResponseEntity changeUserPassword(@RequestHeader("login") String login, @RequestParam String newPassword){
+    public ResponseEntity changeUserPassword(@RequestHeader("login") String login,
+                                             @RequestParam String newPassword){
         try {
                 userService.changePassword(login,newPassword);
         }
         catch (Exception e){
-
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
