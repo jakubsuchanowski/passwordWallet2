@@ -5,6 +5,7 @@ import com.bsi.passwordwalleet3.encryptionAlghoritms.HMAC;
 import com.bsi.passwordwalleet3.encryptionAlghoritms.SHA512;
 import com.bsi.passwordwalleet3.exception.ExceptionMessages;
 import com.bsi.passwordwalleet3.exception.UserLoginException;
+import com.bsi.passwordwalleet3.exception.UserRegisterException;
 import com.bsi.passwordwalleet3.password.Password;
 import com.bsi.passwordwalleet3.password.PasswordService;
 
@@ -41,7 +42,7 @@ public class UserService {
     public void addUser(User userDb) throws Exception {
         Optional<User> userFromDb = userRepo.findByLogin(userDb.getLogin());
         if(userFromDb.isPresent()){
-
+            throw new UserRegisterException(ExceptionMessages.USER_ALREADY_EXIST.getCode());
         }
 
         if(userDb.getIsPasswordKeptAsHash()){
@@ -96,12 +97,12 @@ public class UserService {
         }
     }
 
-    public void changePassword(String login, String newPassword) throws Exception{
+    public void changePassword(String login, Password newPassword) throws Exception{
         Optional<User> userFromDb = userRepo.findByLogin(login);
         String oldUserPassword = userFromDb.get().getPasswordHash();
         if(userFromDb.get().getIsPasswordKeptAsHash()){
             String newSalt = sha512.generateSalt();
-            String sha = SHA512.calculateSHA512(newSalt + newPassword);
+            String sha = SHA512.calculateSHA512(newSalt + newPassword.getPassword());
             Key key = aeSenc.generateKey(pepper);
             String newUserPasswordWithSha = aeSenc.encrypt(sha,key);
             userFromDb.get().setPasswordHash(newUserPasswordWithSha);
@@ -111,7 +112,7 @@ public class UserService {
 
         if(!userFromDb.get().getIsPasswordKeptAsHash()) {
             String newSalt = sha512.generateSalt();
-            String sha = SHA512.calculateSHA512(newSalt + newPassword);
+            String sha = SHA512.calculateSHA512(newSalt + newPassword.getPassword());
             String newUserPasswordWithHMAC = calculateHMAC(sha,pepper);
             userFromDb.get().setPasswordHash(newUserPasswordWithHMAC);
             userFromDb.get().setSalt(newSalt);

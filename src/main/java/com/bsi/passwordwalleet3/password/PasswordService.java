@@ -3,6 +3,9 @@ package com.bsi.passwordwalleet3.password;
 
 import com.bsi.passwordwalleet3.encryptionAlghoritms.AESenc;
 import com.bsi.passwordwalleet3.encryptionAlghoritms.SHA512;
+import com.bsi.passwordwalleet3.exception.ExceptionMessages;
+import com.bsi.passwordwalleet3.exception.PasswordException;
+import com.bsi.passwordwalleet3.exception.UserLoginException;
 import com.bsi.passwordwalleet3.user.User;
 import com.bsi.passwordwalleet3.password.Password;
 import com.bsi.passwordwalleet3.password.PasswordRepo;
@@ -49,15 +52,26 @@ public class PasswordService {
         return passwordRepo.findAllByUserId(userFromDb.get().getId());
     }
 
+    public String encryptPassword(Long passwordId) throws Exception {
+        Optional<Password> passwordFromDb = passwordRepo.findById(passwordId);
+        if(passwordFromDb.isEmpty()){
+            throw new PasswordException(ExceptionMessages.PASSWORD_DOES_NOT_EXIST.getCode());
+        }
+        else{
+            Password password = passwordFromDb.get();
+            return password.getPassword();
+
+        }
+    }
 
 
 
-public String decryptPassword(Long passwordId, String userPassword) throws Exception{
+public String decryptPassword(Long passwordId, User userPassword) throws Exception{
         Optional<Password> passwordFromDb = passwordRepo.findById(passwordId);
 
         String decryptedPassword;
         if(!passwordFromDb.get().getUser().getIsPasswordKeptAsHash()){
-            String sha = SHA512.calculateSHA512(passwordFromDb.get().getUser().getSalt() + userPassword);
+            String sha = SHA512.calculateSHA512(passwordFromDb.get().getUser().getSalt() + userPassword.getPasswordHash());
             String userPasswordWithHmac = calculateHMAC(sha, pepper);
             Password password = passwordFromDb.get();
             Key key = aeSenc.generateKey(userPasswordWithHmac);
@@ -66,7 +80,7 @@ public String decryptPassword(Long passwordId, String userPassword) throws Excep
         }
 
         if(passwordFromDb.get().getUser().getIsPasswordKeptAsHash()){
-            String sha = SHA512.calculateSHA512(passwordFromDb.get().getUser().getSalt() + userPassword);
+            String sha = SHA512.calculateSHA512(passwordFromDb.get().getUser().getSalt() + userPassword.getPasswordHash());
             Key key2 =aeSenc.generateKey(pepper);
             String userPasswordWithSha = aeSenc.encrypt(sha,key2);
             Key key = aeSenc.generateKey(userPasswordWithSha);
@@ -75,7 +89,9 @@ public String decryptPassword(Long passwordId, String userPassword) throws Excep
             decryptedPassword = aeSenc.decrypt(password.getPassword(), key);
             return decryptedPassword;
     }
-    return "Błąd";
+        else {
+            throw new PasswordException(ExceptionMessages.PASSWORD_DOES_NOT_EXIST.getCode());
+        }
     }
     public void changeUserPasswords(String login, String oldUserPassword) throws Exception {
         Optional<User> userFromDb = userRepo.findByLogin(login);

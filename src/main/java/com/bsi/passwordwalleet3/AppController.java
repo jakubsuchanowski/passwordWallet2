@@ -48,13 +48,12 @@ public class AppController {
     }
 
     @PostMapping("/addUser")
-    public ResponseEntity<?> addUser(@RequestBody User userDb) throws Exception {
-//        try {
+    public ResponseEntity<?> addUser(@RequestBody User userDb) {
+        try {
             userService.addUser(userDb);
-//        } catch (Exception e) {
-////            out.println("Bład");
-//            return ResponseEntity.badRequest().body(e.getCause() + e.getMessage());
-//        }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -91,16 +90,26 @@ public class AppController {
         return ResponseEntity.ok(passwordService.showPasswords(userLogin));
     }
 
+    @PostMapping("/encrypt")
+    public ResponseEntity<CryptResponse> encryptPassword(@RequestParam Long passwordId){
+        try {
+            String encryptedPassword = passwordService.encryptPassword(passwordId);
+            CryptResponse response = new CryptResponse(encryptedPassword);
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @PostMapping("/decrypt")
-    public ResponseEntity<CryptResponse> decryptPassword(@RequestParam Long passwordId, @RequestParam String userPassword) throws Exception {
+    public ResponseEntity<CryptResponse> decryptPassword(@RequestParam Long passwordId, @RequestBody User userPassword) throws Exception {
         try {
             String decryptedPassword = passwordService.decryptPassword(passwordId,userPassword);
             CryptResponse response = new CryptResponse(decryptedPassword);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            out.println("Bład");
             return ResponseEntity.badRequest().build();
         }
     }
@@ -108,7 +117,7 @@ public class AppController {
 
     @PostMapping("/changePassword")
     public ResponseEntity changeUserPassword(@RequestHeader("login") String login,
-                                             @RequestParam String newPassword){
+                                             @RequestBody Password newPassword){
         try {
                 userService.changePassword(login,newPassword);
         }
