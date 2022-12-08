@@ -19,23 +19,33 @@ public class PasswordWallet3Application {
     public static void main(String[] args) throws Exception {
         SpringApplication.run(PasswordWallet3Application.class, args);
         String pepper = "qwerty123456";
-        String addHaslo="zosia1";
-        String haslo="zosia7";
-        String sha = SHA512.calculateSHA512("4eb7b62b-4f2f-494f-845e-37d1d7754fc7"+haslo);
+        String addHaslo="haslohaslo123";
+        String haslo="test";
+        String sha = SHA512.calculateSHA512("QWERT12345!@#"+haslo);
         Key key = AESenc.generateKey(pepper);
         String masterKey = AESenc.encrypt(sha,key);
         System.out.println("hasloSHA: "+masterKey);
 
 
+        System.out.println("sha: "+sha);
         String hmac = calculateHMAC(sha, pepper);
         System.out.println("hasloHMAC: "+hmac);
-        Key key2 = AESenc.generateKey(masterKey);
+        Key key2 = AESenc.generateKey(haslo);
         String encryptPassword = AESenc.encrypt(addHaslo,key2);
         String decryptPassword = AESenc.decrypt(encryptPassword,key2);
+        System.out.println("key2: "+key2);
         System.out.println("AES zaszyfrowane: "+encryptPassword);
         System.out.println("AES odszyfrowane: "+decryptPassword);
 
+        String tekst123 = "drugiTestCalculateSHA512qwerty";
+        String key123 = "qwerty12345";
+        String hmacToTest = calculateHMAC(tekst123, key123 );
+        System.out.println("HMAC TO TEST= "+hmacToTest);
+        byte[] md5test = AESenc.calculateMD5(tekst123);
+        System.out.println("MD5 byte: "+ md5test);
 
+        String sha12345 = SHA512.calculateSHA512(tekst123);
+        System.out.println("SHA512 calculate is :"+sha12345);
 
     }
 }

@@ -14,8 +14,6 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class SHA512 {
-
-
     public User encryptSha512(User userDb, String salt){
         if(salt==null){
             salt = generateSalt();

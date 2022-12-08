@@ -47,6 +47,18 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>2.7.5</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>pl.pragmatists</groupId>
+            <artifactId>JUnitParams</artifactId>
+            <version>1.1.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
